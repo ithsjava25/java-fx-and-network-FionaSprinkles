@@ -14,12 +14,12 @@ public class HelloController {
     public ListView<NtfyMessageDto> messageView;
 
     @FXML
-    private Label messageLabel;
+    private Label versionLabel;
 
     @FXML
     private void initialize() {
-        if (messageLabel != null) {
-            messageLabel.setText(model.getGreeting());
+        if (versionLabel != null) {
+            versionLabel.setText(model.getGreeting());
         }
         messageView.setItems(model.getMessages());
         //todo fixa snygga meddelanden
