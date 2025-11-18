@@ -28,8 +28,19 @@ public class HelloController {
             versionLabel.setText(model.getGreeting());
         }
         messageView.setItems(model.getMessages());
-        //todo fixa snygga meddelanden
-        //messageView.setCellFactory();
+
+        //Display only text in messages.
+        messageView.setCellFactory(lv -> new javafx.scene.control.ListCell<>() {
+            @Override
+            protected void updateItem(NtfyMessageDto item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.message());
+                }
+            }
+        });
     }
 
     public void sendMessage(ActionEvent actionEvent) {
