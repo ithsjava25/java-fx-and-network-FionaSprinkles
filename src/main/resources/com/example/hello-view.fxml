@@ -57,8 +57,10 @@
 
             <!-- MEDDELANDEINMATNING -->
             <HBox spacing="10">
-                <TextField fx:id="inputField"
+                <TextArea fx:id="inputField"
                            promptText="Write a message..."
+                          wrapText="true"
+                          prefRowCount="2"
                            HBox.hgrow="ALWAYS"/>
 
                 <Button text="Send"
