@@ -1,7 +1,8 @@
 package com.example;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
-import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.net.URI;
@@ -9,6 +10,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class NtfyConnectionImpl implements NtfyConnection {
@@ -57,13 +59,14 @@ public class NtfyConnectionImpl implements NtfyConnection {
 
         http.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofLines())
                 .thenAccept(response -> response.body()
-                        .map(s-> mapper.readValue(s , NtfyMessageDto.class))
-                        .filter(message->message.event().equals("message"))
-                        .peek(System.out::println)
+                        .map(line -> {
+                            try {
+                                return mapper.readValue(line, NtfyMessageDto.class);
+                            } catch (JsonProcessingException e) {
+                                return null;
+                            }
+                        })
+                        .filter(msg -> msg != null && msg.event().equals("message"))
                         .forEach(messageHandler));
-
-
-
-
     }
 }
