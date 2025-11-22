@@ -3,6 +3,8 @@ package com.example;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
+import java.nio.file.Path;
+import java.nio.file.Files;
 
 import java.io.IOException;
 import java.net.URI;
@@ -10,7 +12,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public class NtfyConnectionImpl implements NtfyConnection {
@@ -18,6 +19,8 @@ public class NtfyConnectionImpl implements NtfyConnection {
     private final ObjectMapper mapper = new ObjectMapper();
     private final HttpClient http = HttpClient.newHttpClient();
     private final String hostName;
+
+    private final Path lastIdFile = Path.of("last_message_id.txt");
 
     public NtfyConnectionImpl() {
         Dotenv dotenv = Dotenv.load();
@@ -51,10 +54,11 @@ public class NtfyConnectionImpl implements NtfyConnection {
     @Override
     public void receive(Consumer<NtfyMessageDto> messageHandler) {
 
+        String since = loadLastId();
+
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .GET()
-                //todo lägg in since-kod för att ta emot meddelanden sedan sist
-                .uri(URI.create(hostName + "/mytopic/json"))
+                .uri(URI.create(hostName + "/mytopic/json?since=" + since))
                 .build();
 
         http.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofLines())
@@ -67,6 +71,24 @@ public class NtfyConnectionImpl implements NtfyConnection {
                             }
                         })
                         .filter(msg -> msg != null && msg.event().equals("message"))
-                        .forEach(messageHandler));
+                        .forEach(msg -> {
+                            messageHandler.accept(msg);
+                            saveLastId(msg.id());
+                        }));
     }
+private String loadLastId() {
+    try {
+        if (Files.exists(lastIdFile)) {
+            return Files.readString(lastIdFile).trim();
+        }
+    } catch (IOException e) {
+    }
+    return "all";
+}
+private void saveLastId(String id) {
+    try {
+        Files.writeString(lastIdFile, id);
+    } catch (IOException e) {}
+}
+
 }
