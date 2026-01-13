@@ -3,6 +3,8 @@ package com.example;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
+
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Files;
 
@@ -34,22 +36,15 @@ public class NtfyConnectionImpl implements NtfyConnection {
 
     @Override
     public boolean send(String message) {
-                HttpRequest httpRequest = HttpRequest.newBuilder()
+        HttpRequest httpRequest = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(message))
                 .uri(URI.create(hostName + "/mytopic"))
                 .build();
-        try {
-            //Todo handle long blocking send requests to not freeze the JavaFX thread
 
-            var response = http.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-            return true;
-        } catch (IOException e) {
-            System.out.println("Error sending message");
-        } catch (InterruptedException e) {
-            System.out.println("Interrupted sending message");
-        }
-        return false;
+        http.sendAsync(httpRequest, HttpResponse.BodyHandlers.discarding());
+        return true;
     }
+
 
     @Override
     public void receive(Consumer<NtfyMessageDto> messageHandler) {
@@ -76,19 +71,42 @@ public class NtfyConnectionImpl implements NtfyConnection {
                             saveLastId(msg.id());
                         }));
     }
-private String loadLastId() {
-    try {
-        if (Files.exists(lastIdFile)) {
-            return Files.readString(lastIdFile).trim();
-        }
-    } catch (IOException e) {
-    }
-    return "all";
-}
-private void saveLastId(String id) {
-    try {
-        Files.writeString(lastIdFile, id);
-    } catch (IOException e) {}
-}
 
+    private String loadLastId() {
+        try {
+            if (Files.exists(lastIdFile)) {
+                return Files.readString(lastIdFile).trim();
+            }
+        } catch (IOException e) {
+        }
+        return "all";
+    }
+
+    private void saveLastId(String id) {
+        try {
+            Files.writeString(lastIdFile, id);
+        } catch (IOException e) {
+        }
+    }
+
+    @Override
+    public boolean sendFile(File file) {
+        try {
+            byte[] fileBytes = Files.readAllBytes(file.toPath());
+
+            HttpRequest httpRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(hostName + "/mytopic"))
+                    .header("Attachment", file.getName())
+                    .POST(HttpRequest.BodyPublishers.ofByteArray(fileBytes))
+                    .build();
+
+            http.sendAsync(httpRequest, HttpResponse.BodyHandlers.discarding());
+            return true;
+
+        } catch (IOException e) {
+            System.out.println("Error sending file");
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

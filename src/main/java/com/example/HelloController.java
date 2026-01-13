@@ -5,6 +5,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
+import javafx.stage.FileChooser;
+
+import java.io.File;
 
 /**
  * Controller layer: mediates between the view (FXML) and the model.
@@ -46,4 +49,15 @@ public class HelloController {
     public void sendMessage(ActionEvent actionEvent) {
         model.sendMessage();
     }
+
+    public void attachFile(ActionEvent event) {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Choose file");
+        File file = chooser.showOpenDialog(messageView.getScene().getWindow());
+
+        if (file != null) {
+            model.sendFile(file);
+        }
+    }
+
 }

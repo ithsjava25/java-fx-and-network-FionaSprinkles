@@ -63,6 +63,9 @@
                           prefRowCount="2"
                            HBox.hgrow="ALWAYS"/>
 
+                <Button text="Attach file"
+                        onAction="#attachFile"/>
+
                 <Button text="Send"
                         onAction="#sendMessage"
                         style="-fx-font-size: 14; -fx-font-weight: bold;"/>

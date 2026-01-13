@@ -6,6 +6,8 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.io.File;
+
 
 /**
  * Model layer: encapsulates application data and business logic.
@@ -54,6 +56,10 @@ public class HelloModel {
         connection.receive(m->Platform.runLater(()->messages.add(m)));
 
     }
+    public void sendFile(File file) {
+        connection.sendFile(file);
+    }
+
 
 }
 
