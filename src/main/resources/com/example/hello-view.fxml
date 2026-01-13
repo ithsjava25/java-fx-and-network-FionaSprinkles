@@ -1,9 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.control.Label?>
 
-<StackPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.HelloController">
-    <children>
-        <Label fx:id="messageLabel" text="Hello, JavaFX!" />
-    </children>
-</StackPane>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.HelloController"
+            prefWidth="900" prefHeight="600">
+
+    <!-- SIDOPANEL -->
+    <!-- TODO : Kanske göra bara knappar istället för dropdown -->
+    <left>
+        <VBox spacing="15" prefWidth="200" style="-fx-background-color: #f0f0f0;">
+            <padding>
+                <Insets top="20" right="10" bottom="20" left="10"/>
+            </padding>
+
+            <Label text="Menu" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+
+            <!-- DROPDOWN -->
+            <ComboBox promptText="your chat rooms">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="/mytopic"/>
+                        <String fx:value="/yourtopic"/>
+                        <String fx:value="/whatisthistopic"/>
+                    </FXCollections>
+                </items>
+            </ComboBox>
+
+        </VBox>
+    </left>
+
+    <!-- BIG BOXX -->
+    <center>
+        <VBox spacing="20" style="-fx-background-color: white;">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <!-- VERSION LABEL-->
+            <Label fx:id="versionLabel"
+                   style="-fx-font-size: 14; -fx-text-fill: gray;" />
+
+            <!-- RUBRIK -->
+            <Label fx:id="messageLabel" text = "Welcome back"
+                   style="-fx-font-size: 32; -fx-font-weight: bold;"/>
+
+            <!-- INKOMMANDE MEDDELANDEN -->
+            <ListView fx:id="messageView" prefHeight="400"/>
+
+
+            <!-- MEDDELANDEINMATNING -->
+            <HBox spacing="10">
+                <TextArea fx:id="inputField"
+                           promptText="Write a message..."
+                          wrapText="true"
+                          prefRowCount="2"
+                           HBox.hgrow="ALWAYS"/>
+
+                <Button text="Attach file"
+                        onAction="#attachFile"/>
+
+                <Button text="Send"
+                        onAction="#sendMessage"
+                        style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+            </HBox>
+
+        </VBox>
+    </center>
+
+</BorderPane>
