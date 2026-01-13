@@ -41,8 +41,13 @@ public class NtfyConnectionImpl implements NtfyConnection {
                 .uri(URI.create(hostName + "/mytopic"))
                 .build();
 
-        http.sendAsync(httpRequest, HttpResponse.BodyHandlers.discarding());
+        try {
+
+        http.send(httpRequest, HttpResponse.BodyHandlers.discarding());
         return true;
+    } catch (IOException | InterruptedException e) {
+        e.printStackTrace();
+        return false;}
     }
 
 
